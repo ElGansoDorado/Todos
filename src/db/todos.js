@@ -1,7 +1,7 @@
 const date1 = new Date(2025, 1, 12, 10, 24);
 const date2 = new Date(2025, 1, 14, 14, 47);
 
-export const todos = [
+const todos = [
     {
         title: 'Изучить React',
         desc: 'Да поскорее!',
@@ -19,3 +19,5 @@ export const todos = [
         key: date2.getTime(),
     }
 ];
+
+export default todos;
