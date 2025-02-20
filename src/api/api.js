@@ -5,6 +5,9 @@ import todos from '../db/todos.js'
 export function getTodo({params}) {
     const key = +params.key;
     const todo = todos.find(current => current.key === key);
+    if (!todo) {
+        throw new Error();
+    }
     return todo;
 }
 
