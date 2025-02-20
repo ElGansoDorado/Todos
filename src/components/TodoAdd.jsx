@@ -1,12 +1,14 @@
 import { useState } from "react"
+import { useSubmit } from "react-router-dom";
 
-export default function TodoAdd(props) {
+export default function TodoAdd() {
     const [title, setTitle] = useState('');
     const [desc, setDesc] = useState('');
     const [image, setImage] = useState('');
+    const submit = useSubmit();
 
     const handleImageChange = evt => {
-        const cFiles = evt.targer.files;
+        const cFiles = evt.target.files;
         if (cFiles.length > 0) {
             const fileReader = new FileReader();
             fileReader.onload = () => {
@@ -15,18 +17,14 @@ export default function TodoAdd(props) {
             fileReader.readAsDataURL(cFiles[0]);
         }
         else {
-            setImage('')
+            setImage('');
         }
     }
 
     const handleFormSubmit = evt => {
         evt.preventDefault();
-        const newDeed = { title, desc, image, done: false };
-        const date = new Date();
-        newDeed.createdAt = date.toLocaleString();
-        newDeed.key = date.getTime();
-        props.add(newDeed);
-        evt.target.reset();
+        submit( {title, desc, image},
+                {action: '/add', method: 'post'});
     }
 
     const handleFormReset = () => {
@@ -38,7 +36,7 @@ export default function TodoAdd(props) {
 
     return (
         <section>
-            <h1></h1>
+            <h1>Создание нового дела</h1>
             <form onSubmit={handleFormSubmit} onReset={handleFormReset}>
                 <div className="field">
                     <label htmlFor="" className="label">Заголовок</label>
@@ -66,25 +64,27 @@ export default function TodoAdd(props) {
                                 type="file"
                                 className="file-input"
                                 accept="image/*"
-                                onChange={handleImageChange}/>
-                            <span className="file-label">
-                                Графическая иллюстрация...
+                                onChange={handleImageChange} />
+                            <span className="file-cta">
+                                <span className="file-label">
+                                    Графическая иллюстрация...
+                                </span>
                             </span>
                         </label>
                     </div>
                 </div>
                 <div className="field is-grouped is-grouped-right">
                     <div className="control">
-                        <input 
-                            type="reset" 
+                        <input
+                            type="reset"
                             className="button is-warning is-light"
-                            value="Сброс"/>
+                            value="Сброс" />
                     </div>
                     <div className="control">
-                        <input 
-                            type="submit" 
-                            className="button is-primary" 
-                            value="Создать дело"/>
+                        <input
+                            type="submit"
+                            className="button is-primary"
+                            value="Создать дело" />
                     </div>
                 </div>
             </form>

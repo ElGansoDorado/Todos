@@ -7,7 +7,7 @@ const todos = [
         desc: 'Да поскорее!',
         image: '',
         done: true,
-        createAt: date1.toLocaleString(),
+        createdAt: date1.toLocaleString(),
         key: date1.getTime(),
     },
     {
@@ -15,7 +15,7 @@ const todos = [
         desc: 'Список запланированных дел',
         image: '',
         done: false,
-        createAt: date2.toLocaleString(),
+        createdAt: date2.toLocaleString(),
         key: date2.getTime(),
     }
 ];
