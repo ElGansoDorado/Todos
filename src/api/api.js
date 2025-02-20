@@ -12,6 +12,18 @@ export function getTodos() {
     return todos;
 }
 
+export function actTodo({ params, request}) {
+    const key = + params.key;
+    const todo = todos.findIndex(current => current.key === key);
+    if (request.method === 'PATCH') {
+        todos[todo].done = true;
+    }
+    else {
+        todos.splice(todo, 1);
+    }
+    return redirect('/');
+}
+
 export async function addTodo({request}) {
     const fd = await request.formData();
     const date = new Date();

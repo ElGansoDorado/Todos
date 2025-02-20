@@ -1,7 +1,16 @@
-import { useLoaderData, Link } from "react-router-dom"
+import { useLoaderData, Link, useSubmit } from "react-router-dom"
 
 export default function TodoList() {
     const list = useLoaderData();
+    const submit = useSubmit();
+
+    const handleDoneClick = key => {
+        submit(null, {action: `/${key}`, method: 'patch'});
+    }
+
+    const handleDeleteClick = key => {
+        submit(null, {action: `/${key}`, method: 'delete'});
+    }
 
     return(
         <section>
@@ -20,7 +29,7 @@ export default function TodoList() {
                                     className="button is-success"
                                     title="выполнено"
                                     disabled={item.done}
-                                    >
+                                    onClick={() => {handleDoneClick(item.key)}}>
                                     &#9745;
                                 </button>
                             </td>
@@ -28,7 +37,7 @@ export default function TodoList() {
                                 <button
                                     className="button is-danger"
                                     title="Удалить"
-                                    >
+                                    onClick={() => {handleDeleteClick(item.key)}}>
                                     &#9746;
                                 </button>
                             </td>
