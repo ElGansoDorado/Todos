@@ -1,37 +1,61 @@
-import { redirect } from "react-router-dom";
+import { data, redirect } from "react-router-dom";
+import { getDatabase, ref, push, set, query, get, remove } from 'firebase/database';
 import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged, signInWithEmailAndPassword, signOut } from 'firebase/auth';
 
 import firebaseApp from "../db/firebase.js";
-import todos from '../db/todos.js'
 
+const database = getDatabase(firebaseApp);
 const auth = getAuth(firebaseApp);
 
-export function getTodo({params}) {
-    const key = +params.key;
-    const todo = todos.find(current => current.key === key);
-    if (!todo) {
-        throw new Error();
+function getUserId() {
+    if (auth.currentUser) {
+        return auth.currentUser.uid;
     }
-    return todo;
+    else {
+        return window.localStorage.getItem('user-id');
+    }
 }
 
-export function getTodos() {
-    return todos;
+export async function getTodo({params}) {
+    const currentUserId = getUserId();
+    const r = ref(database, `users/${currentUserId}/todos`);
+    const q = query(r);
+    const s = await get(q);
+    if (!s.exists()) {
+        throw new Error();
+    }
+    return s.val();
+}
+
+export async function getTodos(user) {
+    const currentUserId = getUserId();
+    const r = ref(database, `users/${currentUserId}/todos`);
+    const q = query(r);
+    const s = await get(q);
+    const res = [];
+    s.forEach((doc) => {
+        const __todo = doc.val();
+        __todo.key = doc.key;
+        res.push(__todo);
+    });
+    return res;
 }
 
 export function actTodo({ params, request}) {
-    const key = + params.key;
-    const todo = todos.findIndex(current => current.key === key);
+    const currentUserId = getUserId();
     if (request.method === 'PATCH') {
-        todos[todo].done = true;
+        const r =  ref(database, `users/${currentUserId}/todos/${params.key}/done`);
+        set(r, true);
     }
     else {
-        todos.splice(todo, 1);
+        const r =  ref(database, `users/${currentUserId}/todos/${params.key}`);
+        remove(r);
     }
     return redirect('/');
 }
 
 export async function addTodo({request}) {
+    const currentUserId = getUserId();
     const fd = await request.formData();
     const date = new Date();
     const newTodo = {
@@ -40,16 +64,18 @@ export async function addTodo({request}) {
         image: fd.get('image'),
         done: false,
         createdAt: date.toLocaleString(),
-        key: date.getTime() 
     };
-    todos.push(newTodo);
+    const db = ref(database, `users/${currentUserId}/todos`);
+    const r = await push(db);
+    await set(r, newTodo);
     return redirect('/');
 }
 
 export async function register({ request }) {
     const fd = await request.formData();
     try {
-        const oUC = await createUserWithEmailAndPassword( auth, fd.get('email'), fd.get('password'));
+        const cr = await createUserWithEmailAndPassword( auth, fd.get('email'), fd.get('password'));
+        window.localStorage.setItem('user-id', cr.user.uid);
         return redirect('/'); 
     }
     catch(err) {
@@ -64,7 +90,8 @@ export function setStateChangeHandler(func) {
 export async function login({request}) {
     const fd = await request.formData();
     try {
-        await signInWithEmailAndPassword( auth, fd.get('email'), fd.get('password'));
+        const cr = await signInWithEmailAndPassword( auth, fd.get('email'), fd.get('password'));
+        window.localStorage.setItem('user-id', cr.user.uid);
         return redirect('/');
     }
     catch (err) {
@@ -74,5 +101,6 @@ export async function login({request}) {
 
 export async function logout() {
     await signOut(auth);
+    window.localStorage.removeItem('user-id');
     return redirect('/login');
 }
