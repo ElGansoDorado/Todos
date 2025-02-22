@@ -1,5 +1,5 @@
 import { createBrowserRouter, createRoutesFromElements, Route} from 'react-router-dom';
-import { getTodos, getTodo, addTodo, actTodo, register, login, logout } from '../api/api.js';
+import { getTodos, getTodo, addTodo, actTodo, register, login, logout, onlyLoggedOut } from '../api/api.js';
 
 import App from '../App';
 import TodoAdd from '../components/TodoAdd.jsx';
@@ -19,8 +19,8 @@ const router = createBrowserRouter(
                     loader={getTodo} 
                     action={actTodo} 
                     errorElement={<Error404 />}/>
-            <Route path='register' element={<Register />} action={register}/>
-            <Route path='login' element={<Login />} action={login}/>
+            <Route path='register' element={<Register />} action={register} loader={onlyLoggedOut}/>
+            <Route path='login' element={<Login />} action={login} loader={onlyLoggedOut}/>
             <Route path='logout' loader={logout}/>
         </Route>
     )

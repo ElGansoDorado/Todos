@@ -18,6 +18,10 @@ function getUserId() {
 
 export async function getTodo({params}) {
     const currentUserId = getUserId();
+    if (!currentUserId) {
+        return redirect('/');
+    }
+    
     const r = ref(database, `users/${currentUserId}/todos`);
     const q = query(r);
     const s = await get(q);
@@ -29,6 +33,10 @@ export async function getTodo({params}) {
 
 export async function getTodos(user) {
     const currentUserId = getUserId();
+    if (!currentUserId) {
+        return redirect('/');
+    }
+    
     const r = ref(database, `users/${currentUserId}/todos`);
     const q = query(r);
     const s = await get(q);
@@ -43,6 +51,10 @@ export async function getTodos(user) {
 
 export function actTodo({ params, request}) {
     const currentUserId = getUserId();
+    if (!currentUserId) {
+        return redirect('/');
+    }
+    
     if (request.method === 'PATCH') {
         const r =  ref(database, `users/${currentUserId}/todos/${params.key}/done`);
         set(r, true);
@@ -56,6 +68,10 @@ export function actTodo({ params, request}) {
 
 export async function addTodo({request}) {
     const currentUserId = getUserId();
+    if (!currentUserId) {
+        return redirect('/');
+    }
+
     const fd = await request.formData();
     const date = new Date();
     const newTodo = {
@@ -103,4 +119,13 @@ export async function logout() {
     await signOut(auth);
     window.localStorage.removeItem('user-id');
     return redirect('/login');
+}
+
+export function onlyLoggedOut() {
+    if (getUserId()) {
+        return redirect('/');
+    }
+    else {
+        return null;
+    }
 }
