@@ -19,10 +19,10 @@ function getUserId() {
 export async function getTodo({params}) {
     const currentUserId = getUserId();
     if (!currentUserId) {
-        return redirect('/');
+        return redirect('/login');
     }
     
-    const r = ref(database, `users/${currentUserId}/todos`);
+    const r = ref(database, `users/${currentUserId}/todos/${params.key}`);
     const q = query(r);
     const s = await get(q);
     if (!s.exists()) {
@@ -34,7 +34,7 @@ export async function getTodo({params}) {
 export async function getTodos(user) {
     const currentUserId = getUserId();
     if (!currentUserId) {
-        return redirect('/');
+        return redirect('/login');
     }
     
     const r = ref(database, `users/${currentUserId}/todos`);
@@ -52,7 +52,7 @@ export async function getTodos(user) {
 export function actTodo({ params, request}) {
     const currentUserId = getUserId();
     if (!currentUserId) {
-        return redirect('/');
+        return redirect('/login');
     }
     
     if (request.method === 'PATCH') {
@@ -69,7 +69,7 @@ export function actTodo({ params, request}) {
 export async function addTodo({request}) {
     const currentUserId = getUserId();
     if (!currentUserId) {
-        return redirect('/');
+        return redirect('/login');
     }
 
     const fd = await request.formData();
