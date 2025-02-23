@@ -5,6 +5,9 @@ export default function TodoAdd() {
     const [title, setTitle] = useState('');
     const [desc, setDesc] = useState('');
     const [image, setImage] = useState('');
+
+    const [errorTitle, setErrorTitle] = useState('');
+    const [errorDesc, setErrorDesc] = useState('');
     const submit = useSubmit();
 
     const handleImageChange = evt => {
@@ -21,18 +24,37 @@ export default function TodoAdd() {
         }
     }
 
-    const handleFormSubmit = evt => {
-        evt.preventDefault();
-        submit( {title, desc, image},
-                {action: '/add', method: 'post'});
-    }
-
     const handleFormReset = () => {
         setTitle('');
         setDesc('');
         setImage('');
     }
 
+    const resetErrorMessages = () => {
+        setErrorTitle('');
+        setErrorDesc('');
+    }
+
+    const validate = () => {
+        resetErrorMessages();
+        if (!title) {
+            setErrorTitle('Заголовок не указан');
+            return false;
+        }
+        if (!desc) {
+            setErrorDesc("У дела нет описания");
+            return false;
+        }
+        return true;
+    };
+
+    const handleFormSubmit = evt => {
+        evt.preventDefault();
+        if (validate()) {
+            submit({ title, desc, image },
+                { action: '/add', method: 'post' });
+        }
+    }
 
     return (
         <section>
@@ -46,6 +68,11 @@ export default function TodoAdd() {
                             value={title}
                             onChange={e => setTitle(e.target.value)} />
                     </div>
+                    {errorTitle &&
+                        <p className="help is-danger">
+                            {errorTitle}
+                        </p>
+                    }
                 </div>
                 <div className="field">
                     <label className="label">Примечания</label>
@@ -56,6 +83,11 @@ export default function TodoAdd() {
                             onChange={e => setDesc(e.target.value)}>
                         </textarea>
                     </div>
+                    {errorDesc &&
+                        <p className="help is-danger">
+                            {errorDesc}
+                        </p>
+                    }
                 </div>
                 <div className="field">
                     <div className="file">
